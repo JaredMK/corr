@@ -1,12 +1,8 @@
 import pandas as pd
 import os
-#import glob
-#from pandas import DataFrame
 import xlsxwriter
 import re
-#import xlrd
 import matplotlib.pyplot as plt
-#import time
 
 
 '''columns for log file data worksheets'''
