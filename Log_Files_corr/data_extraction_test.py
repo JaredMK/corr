@@ -3,6 +3,7 @@ import os
 import xlsxwriter
 import re
 import matplotlib.pyplot as plt
+import openpyxl
 
 
 '''columns for log file data worksheets'''
