@@ -4,7 +4,7 @@ import xlsxwriter
 import re
 import matplotlib.pyplot as plt
 import openpyxl
-
+workbook=openpyxl.Workbook()    #creates openpyxl workbook
 
 '''columns for log file data worksheets'''
 colMolecule = 'A'
@@ -61,11 +61,11 @@ pathorigin=path     #location to save workbook
 #/Users/Jared/Dropbox/Auburn/Research/Second_Research/Log_Files
 
 '''excel file name to open with path'''
-excelFilePathName='/logFiles.xlsx'
+excelFilePathName='/logFiles_openpyxl_test.xlsx'
 
 '''folder containing the log files'''
 logFilesFolder='/Extrapolation_Molecules'
-#logFilesFolder='/anteriores-log'
+
 chargedFolder='charged/'
 neutralFolder='neutral/'
 augFolder='aug/'
@@ -88,8 +88,6 @@ chargedName="CHARGED"
 vdeName="VDE"
 corrName="CORR"
 
-'''excel file name to open with path'''
-excelFilePathName='/logFiles.xlsx'
 
 '''color for graphs'''
 primaryColor=(.22, .42, .69)     #blue
@@ -113,9 +111,12 @@ basisSet/sets = Ecorr
 runOnce=False
 timesRun=0
 
+def run():
+    dataExtract(path)
+
 def rowsForSymAndMol(molecule, symmetry, basis, worksheetName):
    #returns the starting and ending rows in the excel file based off of the molecule and symmetry
-    #print(worksheetName)
+    ##print(worksheetName)
     if worksheetName==neutralName:
         worksheetNumber=sheetNeutral
     if worksheetName==chargedName:
@@ -145,9 +146,9 @@ def rowsForSymAndMol(molecule, symmetry, basis, worksheetName):
             endFound=True
         row+=1
     
-    #print('molecule is ' + molecule)
-    #print('    mol start row is ' + str(molStartRow))
-    #print('    mol end round is ' + str(molEndRow))
+    ##print('molecule is ' + molecule)
+    ##print('    mol start row is ' + str(molStartRow))
+    ##print('    mol end round is ' + str(molEndRow))
     return(molStartRow,molEndRow)
 
 
@@ -301,8 +302,8 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
         basisHFCORR.append(tupBasis)
         row+=1
         #basisHFCORR has tuples with basis, hf, CORR, ccsdt
-    #print('Molecule is ' + molecule)
-    #print('Basis, hf, corr ) ' + str(basisHFCORR))
+    ##print('Molecule is ' + molecule)
+    ##print('Basis, hf, corr ) ' + str(basisHFCORR))
     
     #basisHFCORR is a list filled with tuples for just one molecule
     
@@ -312,16 +313,16 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
     pv5z=None
     
     x=0
-    #print('len of basisHFDif')
-    #print(len(basisHFDif))
+    ##print('len of basisHFDif')
+    ##print(len(basisHFDif))
     while x < len(basisHFCORR):
         
-        #print('really long thing')
-        #print(basisHFDif[x][0][len(basisHFDif[x][0])-4:len(basisHFDif[x][0])])
+        ##print('really long thing')
+        ##print(basisHFDif[x][0][len(basisHFDif[x][0])-4:len(basisHFDif[x][0])])
         
         #checks if last four characters of basis (basisHFCORR[x][0]) matches with one in the basisSets
         if str(basisHFCORR[x][0][len(basisHFCORR[x][0])-4:len(basisHFCORR[x][0])])=='pVDZ':
-            #print('It')
+            ##print('It')
             pvdz=basisHFCORR[x]
         if str(basisHFCORR[x][0][len(basisHFCORR[x][0])-4:len(basisHFCORR[x][0])])=='pVTZ':
             pvtz=basisHFCORR[x]
@@ -331,14 +332,14 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
             pv5z=basisHFCORR[x]
         x+=1
     
-    #print('pvdz')
-    #print(pvtz)
-    #print('pvtz')
-    #print(pvtz)
-    #print('pvqz')
-    #print(pvqz)
-    #print('pv5z')
-    #print(pv5z)    
+    ##print('pvdz')
+    ##print(pvtz)
+    ##print('pvtz')
+    ##print(pvtz)
+    ##print('pvqz')
+    ##print(pvqz)
+    ##print('pv5z')
+    ##print(pv5z)    
 
     labels=[]       #graph labels
     hfValues=[]     #y values
@@ -349,10 +350,10 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
     x=0
     xAxis=0
     while x< len(basisTuples):
-        #print('basis Tuples [x]')
-        #print(basisTuples[x])
+        ##print('basis Tuples [x]')
+        ##print(basisTuples[x])
         if basisTuples[x] is not None:
-            #print('hello')
+            ##print('hello')
             labels.append(basisTuples[x][0])
             hfValues.append(basisTuples[x][1])
             corrValues.append(basisTuples[x][2])
@@ -360,9 +361,9 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
             l.append(xAxis)
             xAxis+=5
         x+=1
-    #print(labels)
-    #print(hfValues)
-    #print(l)
+    ##print(labels)
+    ##print(hfValues)
+    ##print(l)
     
     ylabelHF="HF Value"
     ylabelCORR="CCSD(T)-HF"
@@ -373,8 +374,8 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
     graphFolderHFandCCSDT='/HF_and_CCSD(T)/'
     graphFolderHFandCORR='/HF_and_CORR/'
     
-    print('Basis Tuples LIST')
-    print(basisTuples)
+    #print('Basis Tuples LIST')
+    #print(basisTuples)
     
     
     '''COMMENTING OUT GRAPHS
@@ -427,7 +428,7 @@ def prepareVDEgraph(startRow, endRow, molecule, sheetNumber, augmented):
     
     while x<len(tupVDEarray):
         if str(tupVDEarray[x][0][len(tupVDEarray[x][0])-4:len(tupVDEarray[x][0])])=='pVDZ':
-            #print('preparing VDE graph')
+            ##print('preparing VDE graph')
             pvdz=tupVDEarray[x]
         if str(tupVDEarray[x][0][len(tupVDEarray[x][0])-4:len(tupVDEarray[x][0])])=='pVTZ':
             pvtz=tupVDEarray[x]
@@ -508,110 +509,93 @@ def numberOfBasisSets(logarray):
             commandLocation.append(x)
         x+=1
     commandLocation.append(len(logarray))
-    #print(commandLocation)
+    ##print(commandLocation)
     x=0
     while x< len(commandLocation)-1:
         b=logarray[commandLocation[x]:commandLocation[x+1]]
         logsToReturn.append(b)
         x+=1
-        #print(b)
-        #print(len(b))
-    #print(logsToReturn)
-    #print(len(logsToReturn))
+        ##print(b)
+        ##print(len(b))
+    ##print(logsToReturn)
+    ##print(len(logsToReturn))
     return logsToReturn
             
 def writeDataToExcel(worksheet, row, molecule, charge, multiplicity, basis, symmetry, hf, ccsdt,\
 difference, mp2, mp3, mp4d, mp4dq, mp4sdq, ccsd, orbital, electronicState):
-    '''function takes in values from 
-    to add to excel file'''   
+    '''function takes in values from dataExtract to add to excel file'''   
+    
+    worksheet[colMolecule+str(row)]=molecule
+    worksheet[colCharge+str(row)]=charge
+    worksheet[colMultiplicity+str(row)]=multiplicity
+    worksheet[colBasis+str(row)]=basis
+    
+    worksheet[colSym+str(row)]=symmetry
+    worksheet[colHF+str(row)]=float(hf)
+    worksheet[colCCSDT+str(row)]=float(ccsdt)
+    worksheet[colCORR+str(row)]=difference
 
-    #print('molecule is ' + str(molecule))
-    #print('HF is ' + str(hf))
-    #print('charge is ' + str(charge))
-    #print('multiplicity is ' + str(multiplicity))
-    #print('row is ' + str(row))
-    #print(colMolecule)
-    #print(molecule)
-    #worksheet.write(row, colCCSD, 'hello')
+    worksheet[colMP2+str(row)]=float(mp2)
+    worksheet[colMP3+str(row)]=float(mp3)
+    worksheet[colMP4D+str(row)]=float(mp4d)
+    worksheet[colMP4DQ+str(row)]=float(mp4dq)
     
-    worksheet.write(row, colMolecule, molecule)
-    worksheet.write(row, colCharge, charge)
-    worksheet.write(row, colMultiplicity, multiplicity)
-    worksheet.write(row, colBasis, basis)
-    worksheet.write(row, colSym, symmetry)
-    worksheet.write(row, colHF, float(hf))
-    worksheet.write(row, colCCSDT, float(ccsdt))
-    worksheet.write(row, colCORR, difference)
-    worksheet.write(row, colMP2, float(mp2))
-    worksheet.write(row, colMP3, float(mp3))
-    worksheet.write(row, colMP4D, float(mp4d))
-    worksheet.write(row, colMP4DQ, float(mp4dq))
-    worksheet.write(row, colMP4SDQ, float(mp4sdq))
-    worksheet.write(row, colCCSD, float(ccsd))
-    worksheet.write(row, colOrbital, orbital)
-    worksheet.write(row, colElectronicState, electronicState)
+    worksheet[colMP4SDQ+str(row)]=float(mp4sdq)
+    worksheet[colCCSD+str(row)]=float(ccsd)
+    worksheet[colOrbital+str(row)]=orbital
+    worksheet[colElectronicState+str(row)]=electronicState
     
-    #print(molAndSym)
-    
-
 def dataExtract(path):    
     '''prep excel workbook for NEUTRAL and CHARGED worksheets'''
     
-    #path=os.path.dirname(os.path.realpath(__file__))
-    workbook = xlsxwriter.Workbook(path + excelFilePathName)
-    worksheetNeutral = workbook.add_worksheet('NEUTRAL')
-    worksheetCharged = workbook.add_worksheet('CHARGED')
+    #create neutral and charged worksheets
+    worksheetNeutral = workbook.active
+    worksheetNeutral.title='NEUTRAL'
+    worksheetCharged = workbook.create_sheet(title='CHARGED')
     
-    bold = workbook.add_format({'bold': True})
-    #, 'font_color': '#9CB640'
+    #add headings to each column in neutral worksheet
+    worksheetNeutral[colMolecule+'1']='Molecule'
+    worksheetNeutral[colCharge+'1']='Charge'
+    worksheetNeutral[colBasis+'1']='Basis'
+    worksheetNeutral[colCCSDT+'1']='CCSD(T)'
+    worksheetNeutral[colHF+'1']='HF'
+    worksheetNeutral[colCORR+'1']='CCSD(T)-HF'
+    worksheetNeutral[colMP2+'1']='MP2'
+    worksheetNeutral[colMP3+'1']='MP3'
+    worksheetNeutral[colMP4D+'1']='MP4D'
+    worksheetNeutral[colMP4DQ+'1']='MP4DQ'
+    worksheetNeutral[colMP4SDQ+'1']='MP4SDQ'
+    worksheetNeutral[colSym+'1']='Symmetry'
+    worksheetNeutral[colMultiplicity+'1']='Multiplicity'
+    worksheetNeutral[colCCSD+'1']='CCSD'
+    worksheetNeutral[colOrbital+'1']='Orbital'
+    worksheetNeutral[colElectronicState+'1']='Electronic State'
     
-    #sheet columns for each value
-    
-    worksheetNeutral.write(0, colMolecule, 'Molecule', bold)
-    worksheetNeutral.write(0, colCharge, 'Charge', bold)
-    worksheetNeutral.write(0, colBasis, 'Basis', bold)
-    worksheetNeutral.write(0, colCCSDT, 'CCSD(T)', bold)
-    worksheetNeutral.write(0, colHF, 'HF', bold)
-    worksheetNeutral.write(0, colCORR, 'CCSD(T)-HF', bold)
-    worksheetNeutral.write(0, colMP2, 'MP2', bold)
-    worksheetNeutral.write(0, colMP3, 'MP3', bold)
-    worksheetNeutral.write(0, colMP4D, 'MP4D', bold)
-    worksheetNeutral.write(0, colMP4DQ, 'MP4DQ', bold)
-    worksheetNeutral.write(0, colMP4SDQ, 'MP4SDQ', bold)
-    worksheetNeutral.write(0, colSym, 'Symmetry', bold)
-    worksheetNeutral.write(0, colMultiplicity, 'Multiplicity', bold)
-    worksheetNeutral.write(0, colCCSD, 'CCSD', bold)
-    worksheetNeutral.write(0, colOrbital, 'Orbital', bold)
-    worksheetNeutral.write(0, colElectronicState, 'Electronic State', bold)
-    
-    worksheetCharged.write(0, colMolecule, 'Molecule', bold)
-    worksheetCharged.write(0, colCharge, 'Charge', bold)
-    worksheetCharged.write(0, colBasis, 'Basis', bold)
-    worksheetCharged.write(0, colCCSDT, 'CCSD(T)', bold)
-    worksheetCharged.write(0, colHF, 'HF', bold)
-    worksheetCharged.write(0, colCORR, 'CCSD(T)-HF', bold)
-    worksheetCharged.write(0, colMP2, 'MP2', bold)
-    worksheetCharged.write(0, colMP3, 'MP3', bold)
-    worksheetCharged.write(0, colMP4D, 'MP4D', bold)
-    worksheetCharged.write(0, colMP4DQ, 'MP4DQ', bold)
-    worksheetCharged.write(0, colMP4SDQ, 'MP4SDQ', bold)
-    worksheetCharged.write(0, colSym, 'Symmetry', bold)
-    worksheetCharged.write(0, colMultiplicity, 'Multiplicity', bold)
-    worksheetCharged.write(0, colCCSD, 'CCSD', bold)
-    worksheetCharged.write(0, colOrbital, 'Orbital', bold)
-    worksheetCharged.write(0, colElectronicState, 'Electronic State', bold)
+    #add headings to each column in charged worksheet
+    worksheetCharged[colMolecule+'1']='Molecule'
+    worksheetCharged[colCharge+'1']='Charge'
+    worksheetCharged[colBasis+'1']='Basis'
+    worksheetCharged[colCCSDT+'1']='CCSD(T)'
+    worksheetCharged[colHF+'1']='HF'
+    worksheetCharged[colCORR+'1']='CCSD(T)-HF'
+    worksheetCharged[colMP2+'1']='MP2'
+    worksheetCharged[colMP3+'1']='MP3'
+    worksheetCharged[colMP4D+'1']='MP4D'
+    worksheetCharged[colMP4DQ+'1']='MP4DQ'
+    worksheetCharged[colMP4SDQ+'1']='MP4SDQ'
+    worksheetCharged[colSym+'1']='Symmetry'
+    worksheetCharged[colMultiplicity+'1']='Multiplicity'
+    worksheetCharged[colCCSD+'1']='CCSD'
+    worksheetCharged[colOrbital+'1']='Orbital'
+    worksheetCharged[colElectronicState+'1']='Electronic State'
  
-    '''function extracts data from log(.txt) files and sends to writeDataToExcel'''
-   
-    #files = [f for f in /Users/Jared/Dropbox/Auburn/Research/Second_Research/Log_Files]
-    #    #print(f)
-    
-    
+    '''function extracts data from log files and sends to writeDataToExcel'''
+
     logFiles=[]
 
     for path, subdirs, files in os.walk(path+logFilesFolder):
         for name in files:
-            if os.path.join(path, name)[len(os.path.join(path, name))-4:len(os.path.join(path, name))]=='.txt':
+            if os.path.join(path, name)[len(os.path.join(path, name))-4:len(os.path.join(path, name))]=='.log':
                 logFiles.append(os.path.join(path, name)) 
     
     #logFiles=['/Users/Jared/Dropbox/Auburn/Research/Second_Research/Log_Files/CH4_Dz.txt']
@@ -621,24 +605,24 @@ def dataExtract(path):
     molAndSymNeutral=[]   #holds list of tuples of all the molecules/symmetry combos. To use in function returnRowsforSymsandMols
     molAndSymCharged=[]
     
-    rowNeutral = 1
-    rowCharged = 1
-    #print(logFiles)
+    rowNeutral = 2
+    rowCharged = 2
+    ##print(logFiles)
     '''begin searching and saving data'''
     for currentFile in logFiles: 
         log = open(currentFile, 'r').read()
         
         splitLog = re.split(r'[\\\s]\s*', log)  #splits string with \ (\\), empty space (\s) and = and ,
-        ##print(repr(splitlog))
-        ##print(splitlog)
-        ##print(len(splitlog))
+        ###print(repr(splitlog))
+        ###print(splitlog)
+        ###print(len(splitlog))
         #open up the log file, read it, and split it- log
-        ##print('length of splitlog is' + str(len(splitlog)))
+        ###print('length of splitlog is' + str(len(splitlog)))
         #reset all values
         
         for splitlog in numberOfBasisSets(splitLog): #NUMBEROFSPLITS will return where in log file it needs to be split for basis sets
             #textFile(log)   #text file will return each log split by basis set because some aren't
-            #print(splitlog)
+            ##print(splitlog)
             molecule = None
             charge = None
             multiplicity = None
@@ -657,9 +641,7 @@ def dataExtract(path):
             electronicState=None
             valuesBlockFound=False
             populationAnalysisFound=False    #need for orbital
-            alphaOrbitalFound=False     #need for multiplicity not 1 for electronic state
-            betaOrbitalFound=False
-            
+            alphaOrbitalFound=False     #need for multiplicity not 1 for electronic state            
     
             x=0
             while x<len(splitlog):
@@ -676,35 +658,35 @@ def dataExtract(path):
                                                 #find charge and multiplicity
                 if splitlog[x] == 'Multiplicity':
                     charge = float(splitlog[x-1])
-                    #print('charge is ' + str(charge))             
+                    ##print('charge is ' + str(charge))             
                     multiplicity = int(splitlog[x+2])
-                    #print('multiplicity is ' + str(multiplicity))
+                    ##print('multiplicity is ' + str(multiplicity))
                                                 #find basis and symmetry
                 if splitlog[x] == 'Standard' and splitlog[x+1]=='basis:':
                     basis = splitlog[x+2]
-                    #print('basis is ' + basis)              
+                    ##print('basis is ' + basis)              
         
                 if splitlog[x]=='Full':     
                     symmetry=splitlog[x+3]
-                    #print('symmetry is ' + symmetry)              
+                    ##print('symmetry is ' + symmetry)              
                                                     #find block with data   
                 
                 if splitlog[x]=='Population' and splitlog[x+1]=='analysis':
-                    print(multiplicity)
+                    #print(multiplicity)
                     populationAnalysisFound=True
-                    print('population analysis found')
+                    ##print('population analysis found')
                     
                 if multiplicity==1 and populationAnalysisFound==True and splitlog[x]=='Virtual' and orbital==None:
                     orbital = splitlog[x-1]
-                    print('orbital found for multiplicity is 1')
+                    ##print('orbital found for multiplicity is 1')
                 
                 if splitlog[x]=='Alpha' and splitlog[x+1]=='Orbitals:' and populationAnalysisFound==True and multiplicity!=None and multiplicity!=1:
                     alphaOrbitalFound=True
-                    print('alpha orbital found')
+                    ##print('alpha orbital found')
                     
                 if alphaOrbitalFound==True and splitlog[x]=='Virtual' and orbital==None:
                     orbital=splitlog[x-1]
-                    print('orbital found for multiplicity not 1')
+                    ##print('orbital found for multiplicity not 1')
                     
                 if populationAnalysisFound==True and electronicState==None:
                     if splitlog[x]=='The' or splitlog[x]=='Unable':
@@ -722,9 +704,9 @@ def dataExtract(path):
                     while splitlog[x+y]!='@':
                         y+=1
                     valuesBlock=''.join(splitlog[x:x+y])
-                    #print('start values block')
-                    #print(valuesBlock)
-                    #print('end values block')
+                    ##print('start values block')
+                    ##print(valuesBlock)
+                    ##print('end values block')
                     l=0
                     while l < len(valuesBlock):
                                                         #find HF
@@ -739,7 +721,7 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             hf=valuesBlock[start:end-1]
-                            #print('HF is ' + hf)
+                            ##print('HF is ' + hf)
                                                             #find CCSD(T)
                                                             #calculate difference
                         if valuesBlock[l:l+8]=='CCSD(T)=':    
@@ -753,7 +735,7 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             ccsdt=valuesBlock[start:end-1]
-                            #print('CCSD(T) is ' + ccsdt)
+                            ##print('CCSD(T) is ' + ccsdt)
                             
                             difference = float(ccsdt) - float(hf)
                                                             #find MP2
@@ -768,7 +750,7 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             mp2=valuesBlock[start:end-1]
-                            #print('MP2 is ' + mp2)
+                            ##print('MP2 is ' + mp2)
                                                         #find MP3
                         if valuesBlock[l:l+4]=='MP3=':    
                             start=l+4
@@ -781,7 +763,7 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             mp3=valuesBlock[start:end-1]
-                            #print('MP3 is ' + mp3)
+                            ##print('MP3 is ' + mp3)
                                                         #find MP4D
                         if valuesBlock[l:l+5]=='MP4D=':    
                             start=l+5
@@ -794,7 +776,7 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             mp4d=valuesBlock[start:end-1]
-                            #print('MP4D is ' + mp4d)
+                            ##print('MP4D is ' + mp4d)
                                                         #find MP4DQ   
                         if valuesBlock[l:l+6]=='MP4DQ=':    
                             start=l+6
@@ -807,7 +789,7 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             mp4dq=valuesBlock[start:end-1]
-                            #print('MP4DQ is ' + mp4dq)
+                            ##print('MP4DQ is ' + mp4dq)
                                                             #find MP4SDQ
                         if valuesBlock[l:l+7]=='MP4SDQ=':    
                             start=l+7
@@ -820,7 +802,7 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             mp4sdq=valuesBlock[start:end-1]
-                            #print('MP4SDQ is ' + mp4sdq)
+                            ##print('MP4SDQ is ' + mp4sdq)
                                                             #find CCSD 
                         if valuesBlock[l:l+5]=='CCSD=':    
                             start=l+5
@@ -833,20 +815,19 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             ccsd=valuesBlock[start:end-1]
-                            #print('CCSD is ' + ccsd)
+                            ##print('CCSD is ' + ccsd)
     
                         l+=1        
                 x+=1
             
             if valuesBlockFound==True:
-                #print('molecule is ' + molecule)
-                #print('HF is ' + hf)
+                ##print('molecule is ' + molecule)
+                ##print('HF is ' + hf)
             
                     
                 '''figure out which worksheet to use'''
-                #print('Charge is ' + str(charge))
+                ##print('Charge is ' + str(charge))
                 molsym=(str(molecule), str(symmetry), str(basis[0:2]))
-                #print(molsym)
                     
                 if charge==0:
                     worksheet=worksheetNeutral
@@ -859,21 +840,20 @@ def dataExtract(path):
                     row = rowCharged
                     if molsym not in molAndSymCharged:
                         molAndSymCharged.append(molsym)
-                    #molAndSym=molAndSymNeutral
-                #print('here we go')    
-                #print(molecule, charge, multiplicity, basis, symmetry, hf, ccsdt)
+
+                #data stored in variables is input to writesDataToExcel
                 writeDataToExcel(worksheet, row, molecule, charge, multiplicity, basis, symmetry, hf, ccsdt,\
         difference, mp2, mp3, mp4d, mp4dq, mp4sdq, ccsd, orbital, electronicState)
-                
+        
                 if charge==0:
                     rowNeutral+=1
                 else:
                     rowCharged+=1
-      
+    """                
     VDEexcel(workbook, bold) 
     CreateCORRexcel(workbook, bold)     
             
-    #print(molAndSymNeutral) 
+    ##print(molAndSymNeutral) 
     for m in molAndSymNeutral:
         #molAndSym contains tuples of (molecule, symmetry)
         #m[0] gives molecule
@@ -886,14 +866,14 @@ def dataExtract(path):
             augmented=True
         elif m[2][0:2]=='CC':
             augmented=False
-        #print(m[0], m[2][0:2], startRow+2, endRow+2)
+        ##print(m[0], m[2][0:2], startRow+2, endRow+2)
         #if endRow-startRow>=4:
-         #   print('MORE THAN FOUR ')
-          #  print(m[0], m[1], m[2], 'NEUTRAL')
+         #   #print('MORE THAN FOUR ')
+          #  #print(m[0], m[1], m[2], 'NEUTRAL')
         prepareGraph(startRow, endRow, m[0], 'NEUTRAL', augmented)
         prepareVDEgraph(startRow, endRow, m[0], 2, augmented)
     
-    #print(molAndSymCharged)
+    ##print(molAndSymCharged)
     for m in molAndSymCharged:
         #molAndSym contains tuples of (molecule, symmetry)
         #m[0] gives molecule
@@ -906,10 +886,10 @@ def dataExtract(path):
             augmented=True
         elif m[2][0:2]=='CC':
             augmented=False
-        #print(m[0], m[2][0:2], startRow+2, endRow+2)
+        ##print(m[0], m[2][0:2], startRow+2, endRow+2)
         #if endRow-startRow>=4:
-         #   print('MORE THAN FOUR ')
-          #  print(m[0], m[1], m[2], 'CHARGED')
+         #   #print('MORE THAN FOUR ')
+          #  #print(m[0], m[1], m[2], 'CHARGED')
         prepareGraph(startRow, endRow, m[0], 'CHARGED', augmented)
     
     
@@ -921,6 +901,10 @@ def dataExtract(path):
         #df = DataFrame({'Molecule':arrMolecule})
         #df.to_excel('/Users/Jared/Dropbox/Auburn/Research/Second Research/log Files/logFiles.xlsx', sheet_name='sheet1',index = False)
 
+    
+    """
+    workbook.save(pathorigin + excelFilePathName)     #saves file
+    
 def VDEexcel(workbook, bold):
     '''function creates an excel sheet for VDE difference between charged and neutral'''
 
@@ -1052,7 +1036,7 @@ def VDEexcel(workbook, bold):
 def CreateCORRexcel(workbook, bold):
     global worksheetCORR
     worksheetCORR = workbook.add_worksheet(corrName)
-    print('made worksheet')
+    #print('made worksheet')
     worksheetCORR.write(0, colCORRmolecule, 'Molecule', bold)
     worksheetCORR.write(0, colCORRaugmented, 'Augmented', bold)
     worksheetCORR.write(0, colCORRbasisX, 'Basis Set X', bold)
@@ -1158,8 +1142,8 @@ Basis Tuples LIST
                     
                     x=0
                     while x<len(vdeCCSDTev_list):
-                        #print('BBBBBBBB')
-                        #print(molecule, augmented)
+                        ##print('BBBBBBBB')
+                        ##print(molecule, augmented)
                         if vdeCCSDTev_list[x][0]==molecule and vdeCCSDTev_list[x][1]==augmented:
                             vdeCCSDTev_list[x].append([basisSetXFull, basisSetYFull, ccVDE_hf_corr*Ha_eV_conversion])
                         x+=1         
@@ -1174,12 +1158,12 @@ Basis Tuples LIST
     
     global timesRun
     timesRun+=1
-    print(timesRun)
+    #print(timesRun)
     
 
     if timesRun==88:
-        print('vdeCCSDTev_list')
-        print vdeCCSDTev_list
+        #print('vdeCCSDTev_list')
+        #print vdeCCSDTev_list
         for x in vdeCCSDTev_list:
             graphVDEcorr_indBasis_and_Extrapolated(x)
 
@@ -1208,12 +1192,12 @@ def CalculateA(eCORRxy, eCORRx, basis):
     return a 
     
 def graphVDEcorr_indBasis_and_Extrapolated(vdeCCSDT):
-    print('VDE CCSDT LIST GIVEN')
-    print(vdeCCSDT)
+    #print('VDE CCSDT LIST GIVEN')
+    #print(vdeCCSDT)
     
     global timesRun
     timesRun+=1
-    print(timesRun)
+    #print(timesRun)
     
     molecule=vdeCCSDT[0]
     augmented=vdeCCSDT[1]
