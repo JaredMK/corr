@@ -1,4 +1,4 @@
-import pandas as pd
+#import pandas as pd
 import os
 import xlsxwriter
 import re
@@ -111,7 +111,8 @@ basisSet/sets = Ecorr
 runOnce=False
 timesRun=0
 
-def run():
+def run():  
+    """function calls dataExtract """
     dataExtract(path)
 
 def rowsForSymAndMol(molecule, symmetry, basis, worksheetName):
@@ -849,9 +850,9 @@ def dataExtract(path):
                     rowNeutral+=1
                 else:
                     rowCharged+=1
-    """                
-    VDEexcel(workbook, bold) 
-    CreateCORRexcel(workbook, bold)     
+
+    VDEexcel(worksheetCharged, worksheetNeutral) 
+    """CreateCORRexcel(workbook, bold)     
             
     ##print(molAndSymNeutral) 
     for m in molAndSymNeutral:
@@ -905,35 +906,31 @@ def dataExtract(path):
     """
     workbook.save(pathorigin + excelFilePathName)     #saves file
     
-def VDEexcel(workbook, bold):
+def VDEexcel(chargedWorksheet, neutralWorksheet):
     '''function creates an excel sheet for VDE difference between charged and neutral'''
+    
+    worksheetVDE = workbook.create_sheet(title='VDE')   #create VDE worksheet #3
+    
+    worksheetVDE[colVDEMolecule+'1']='Molecule'
+    worksheetVDE[colVDESymmetry+'1']='Symmetry'
+    worksheetVDE[colVDEBasis+'1']='Basis'
+    worksheetVDE[colVDE_HFcharged+'1']='HF (N-1)'
+    worksheetVDE[colVDE_HFneutral+'1']='HF (N)'
+    worksheetVDE[colVDE_HF_Ha+'1']='VDE(HF)(Ha)=HF(N-1)-HF(N)'
+    worksheetVDE[colVDE_HF_eV+'1']='VDE(HF) (eV)'
+    worksheetVDE[colVDE_CCSDTcharged+'1']='CCSD(T) (N-1)'
+    worksheetVDE[colVDE_CCSDTneutral+'1']='CCSD(T) (N)'
+    worksheetVDE[colVDE_CCSDT_Ha+'1']='VDE(CCSDT)(Ha)=CCSD(T)(N-1)-CCSD(T)(N)'
+    worksheetVDE[colVDE_CCSDT_eV+'1']='VDE(CCSDT)(eV)=CCSD(T)(N-1)-CCSD(T)(N)'
+    worksheetVDE[colVDE_CORRcharged+'1']='CORR (N-1)'
+    worksheetVDE[colVDE_CORRneutral+'1']='CORR (N)'
+    worksheetVDE[colVDE_CORR_Ha+'1']='VDE(CORR)(Ha)=CORR(N-1) - CORR(N)'
+    worksheetVDE[colVDE_CORR_eV+'1']='VDE(CORR)(eV)=CORR(N-1) - CORR(N)'
+    
+    row=2
+    totalRows=neutralWorksheet.max_row
 
-    worksheetVDE = workbook.add_worksheet('VDE')
-    neutralWorksheet=pd.read_excel(path+'/logFiles.xlsx', sheetname=0)
-        
-    chargedWorksheet=pd.read_excel(path+'/logFiles.xlsx', sheetname=1)
-
-    
-    worksheetVDE.write(0, colVDEMolecule, 'Molecule', bold)
-    worksheetVDE.write(0, colVDESymmetry, 'Symmetry', bold)
-    worksheetVDE.write(0, colVDEBasis, 'Basis', bold)
-    worksheetVDE.write(0, colVDE_HFcharged, 'HF (N-1)', bold)
-    worksheetVDE.write(0, colVDE_HFneutral, 'HF (N)', bold)
-    worksheetVDE.write(0, colVDE_HF_Ha, 'VDE(HF)(Ha)=HF(N-1)-HF(N)', bold)
-    worksheetVDE.write(0, colVDE_HF_eV, 'VDE(HF) (eV)', bold)
-    worksheetVDE.write(0, colVDE_CCSDTcharged, 'CCSD(T) (N-1)', bold)
-    worksheetVDE.write(0, colVDE_CCSDTneutral, 'CCSD(T) (N)', bold)
-    worksheetVDE.write(0, colVDE_CCSDT_Ha, 'VDE(CCSDT)(Ha)=CCSD(T)(N-1)-CCSD(T)(N)', bold)
-    worksheetVDE.write(0, colVDE_CCSDT_eV, 'VDE(CCSDT)(eV)=CCSD(T)(N-1)-CCSD(T)(N)', bold)
-    worksheetVDE.write(0, colVDE_CORRcharged, 'CORR (N-1)', bold)
-    worksheetVDE.write(0, colVDE_CORRneutral, 'CORR (N)', bold)
-    worksheetVDE.write(0, colVDE_CORR_Ha, 'VDE(CORR)(Ha)=CORR(N-1) - CORR(N)', bold)
-    worksheetVDE.write(0, colVDE_CORR_eV, 'VDE(CORR)(eV)=CORR(N-1) - CORR(N)', bold)
-    
-    row=0
-    totalRows=len(neutralWorksheet.count(axis='columns'))
-    
-    while row<totalRows:
+    while row<=totalRows:
         
         '''set all VDE worksheet values to none'''
         neutralMolecule=None
@@ -953,44 +950,49 @@ def VDEexcel(workbook, bold):
         VDE_CORR=None
         
         '''find all the necessary values from neutral worksheet'''
-        neutralMolecule=neutralWorksheet.ix[row,colMolecule]
-        neutralSymmetry=neutralWorksheet.ix[row, colSym]
-        neutralBasis=neutralWorksheet.ix[row, colBasis]
+        neutralMolecule=neutralWorksheet[colMolecule + str(row)].value
+        neutralSymmetry=neutralWorksheet[colSym + str(row)].value
+        neutralBasis=neutralWorksheet[colBasis + str(row)].value
         
-        neutralHF=neutralWorksheet.ix[row, colHF]
-        neutralCCSDT=neutralWorksheet.ix[row,colCCSDT]
-        neutralCORR=neutralWorksheet.ix[row,colCORR]
+        neutralHF=neutralWorksheet[colHF + str(row)].value
+        neutralCCSDT=neutralWorksheet[colCCSDT + str(row)].value
+        neutralCORR=neutralWorksheet[colCORR + str(row)].value
         
         '''write neutral values into VDE worksheet'''
-        worksheetVDE.write(row+1, colVDEMolecule, neutralMolecule)
-        worksheetVDE.write(row+1, colVDESymmetry, neutralSymmetry)
-        worksheetVDE.write(row+1, colVDEBasis, neutralBasis)
+        worksheetVDE[colVDEMolecule+str(row)]=neutralMolecule
+        worksheetVDE[colVDESymmetry+str(row)]=neutralSymmetry
+        worksheetVDE[colVDEBasis+str(row)]=neutralBasis
         
-        worksheetVDE.write(row+1, colVDE_HFneutral, neutralHF)
-        worksheetVDE.write(row+1, colVDE_CCSDTneutral, neutralCCSDT)
-        worksheetVDE.write(row+1, colVDE_CORRneutral, neutralCORR)
-        
-        '''find all necessary values from charged worksheet'''
-        otherRow=0
-        while otherRow<totalRows+1:
+        worksheetVDE[colVDE_HFneutral+str(row)]=neutralHF
+        worksheetVDE[colVDE_CCSDTneutral+str(row)]=neutralCCSDT
+        worksheetVDE[colVDE_CORRneutral+str(row)]=neutralCORR
 
-            chargedMolecule=chargedWorksheet.ix[otherRow,colMolecule]
-            chargedSymmetry=chargedWorksheet.ix[otherRow, colSym]
-            chargedBasis=chargedWorksheet.ix[otherRow, colBasis]
-            
-            chargedHF=chargedWorksheet.ix[otherRow, colHF]
-            chargedCCSDT=chargedWorksheet.ix[otherRow,colCCSDT]
-            chargedCORR=chargedWorksheet.ix[otherRow,colCORR]
-            
-            '''check if charged values = neutral values'''
+        
+        '''find all necessary values from charged worksheet. Since not all the charged and neutral molecules are lined 
+        up properly between the worksheets a loop is run to find where the charged worksheet molecule matches the
+        neutral worksheet molecule'''
+        otherRow=2
+        while otherRow<=totalRows:
+            """find what the charged row molecule symmetry and basis is"""
+            chargedMolecule=chargedWorksheet[colMolecule + str(otherRow)].value
+            chargedSymmetry=chargedWorksheet[colSym + str(otherRow)].value
+            chargedBasis=chargedWorksheet[colBasis + str(otherRow)].value
+        
+            '''check if charged values == neutral values to make sure'''
             if chargedMolecule==neutralMolecule and chargedSymmetry==neutralSymmetry \
             and chargedBasis==neutralBasis:     
+                ''' if they are the same proceed and find the hf ccsdt and corr values'''
+                chargedHF=chargedWorksheet[colHF + str(otherRow)].value
+                chargedCCSDT=chargedWorksheet[colCCSDT + str(otherRow)].value
+                chargedCORR=chargedWorksheet[colCORR + str(otherRow)].value
                 '''write charged values into VDE worksheet'''
-                worksheetVDE.write(row+1, colVDE_HFcharged, chargedHF)
-                worksheetVDE.write(row+1, colVDE_CCSDTcharged, chargedCCSDT)
-                worksheetVDE.write(row+1, colVDE_CORRcharged, chargedCORR)
-                break
+                
+                worksheetVDE[colVDE_HFcharged+str(otherRow)]=chargedHF
+                worksheetVDE[colVDE_CCSDTcharged+str(otherRow)]=chargedCCSDT
+                worksheetVDE[colVDE_CORRcharged+str(otherRow)]=chargedCORR
+                break   #since the charged and neutral rows match up break from loop
             otherRow+=1
+            
         
         '''equate all VDE values and write into excel'''
         VDE_HF=chargedHF-neutralHF
@@ -1020,16 +1022,13 @@ def VDEexcel(workbook, bold):
         #create graphs for CCSDT N, N-1
         #create graphs for CORR N, N-1
         
+        worksheetVDE[colVDE_HF_Ha+str(row)]=VDE_HF
+        worksheetVDE[colVDE_CCSDT_Ha+str(row)]=VDE_CCSDT
+        worksheetVDE[colVDE_CORR_Ha+str(row)]=VDE_CORR
         
-        worksheetVDE.write(row+1, colVDE_HF_Ha, VDE_HF)
-        worksheetVDE.write(row+1, colVDE_CCSDT_Ha, VDE_CCSDT)
-        worksheetVDE.write(row+1, colVDE_CORR_Ha, VDE_CORR)
-        
-        worksheetVDE.write(row+1, colVDE_HF_eV, VDE_HF*Ha_eV_conversion)
-        worksheetVDE.write(row+1, colVDE_CCSDT_eV, VDE_CCSDT*Ha_eV_conversion)
-        worksheetVDE.write(row+1, colVDE_CORR_eV, VDE_CORR*Ha_eV_conversion)
-        
-        
+        worksheetVDE[colVDE_HF_eV+str(row)]=VDE_HF*Ha_eV_conversion
+        worksheetVDE[colVDE_CCSDT_eV+str(row)]=VDE_CCSDT*Ha_eV_conversion
+        worksheetVDE[colVDE_CORR_eV+str(row)]=VDE_CORR*Ha_eV_conversion
         
         row+=1
         
