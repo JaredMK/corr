@@ -551,8 +551,8 @@ def dataExtract(path):
     
     #create neutral and charged worksheets
     worksheetNeutral = workbook.active
-    worksheetNeutral.title='NEUTRAL'
-    worksheetCharged = workbook.create_sheet(title='CHARGED')
+    worksheetNeutral.title=neutralName
+    worksheetCharged = workbook.create_sheet(title=chargedName)
     
     #add headings to each column in neutral worksheet
     worksheetNeutral[colMolecule+'1']='Molecule'
@@ -852,8 +852,8 @@ def dataExtract(path):
                     rowCharged+=1
 
     VDEexcel(worksheetCharged, worksheetNeutral) 
-    """CreateCORRexcel(workbook, bold)     
-            
+    CreateCORRexcel()     
+       
     ##print(molAndSymNeutral) 
     for m in molAndSymNeutral:
         #molAndSym contains tuples of (molecule, symmetry)
@@ -892,24 +892,19 @@ def dataExtract(path):
          #   #print('MORE THAN FOUR ')
           #  #print(m[0], m[1], m[2], 'CHARGED')
         prepareGraph(startRow, endRow, m[0], 'CHARGED', augmented)
-    
-    
-    
-                
-    workbook.close()
         
             
         #df = DataFrame({'Molecule':arrMolecule})
         #df.to_excel('/Users/Jared/Dropbox/Auburn/Research/Second Research/log Files/logFiles.xlsx', sheet_name='sheet1',index = False)
 
     
-    """
+    
     workbook.save(pathorigin + excelFilePathName)     #saves file
     
 def VDEexcel(chargedWorksheet, neutralWorksheet):
     '''function creates an excel sheet for VDE difference between charged and neutral'''
     
-    worksheetVDE = workbook.create_sheet(title='VDE')   #create VDE worksheet #3
+    worksheetVDE = workbook.create_sheet(title=vdeName)   #create VDE worksheet #3
     
     worksheetVDE[colVDEMolecule+'1']='Molecule'
     worksheetVDE[colVDESymmetry+'1']='Symmetry'
@@ -973,7 +968,7 @@ def VDEexcel(chargedWorksheet, neutralWorksheet):
         neutral worksheet molecule'''
         otherRow=2
         while otherRow<=totalRows:
-            """find what the charged row molecule symmetry and basis is"""
+            """'''find what the charged row molecule symmetry and basis is'''"""
             chargedMolecule=chargedWorksheet[colMolecule + str(otherRow)].value
             chargedSymmetry=chargedWorksheet[colSym + str(otherRow)].value
             chargedBasis=chargedWorksheet[colBasis + str(otherRow)].value
@@ -1032,24 +1027,24 @@ def VDEexcel(chargedWorksheet, neutralWorksheet):
         
         row+=1
         
-def CreateCORRexcel(workbook, bold):
-    global worksheetCORR
-    worksheetCORR = workbook.add_worksheet(corrName)
-    #print('made worksheet')
-    worksheetCORR.write(0, colCORRmolecule, 'Molecule', bold)
-    worksheetCORR.write(0, colCORRaugmented, 'Augmented', bold)
-    worksheetCORR.write(0, colCORRbasisX, 'Basis Set X', bold)
-    worksheetCORR.write(0, colCORRbasisY, 'Basis Set Y', bold)
-    worksheetCORR.write(0, colCORRcharge, 'Charge', bold)
-    worksheetCORR.write(0, colCORR_Ecorr, 'Ecorr xy', bold)
-    worksheetCORR.write(0, colCORR_A, 'A', bold)
-    worksheetCORR.write(0, colCORR_VDE_CORR, 'CORR VDE', bold)
-    worksheetCORR.write(0, colMaxBasisSet, 'Largest Basis HF(x)', bold)
-    worksheetCORR.write(0, colVDEcc_hfcorr, 'ccVDE hf+corr', bold)
-    worksheetCORR.write(0, colVDEcc_eV, 'ccVDE (eV)', bold)
+def CreateCORRexcel():
+    worksheetCORR = workbook.create_sheet(title=corrName)   #create CORR worksheet #4
     
+    worksheetCORR[colCORRmolecule+'1']='Molecule'
+    worksheetCORR[colCORRaugmented+'1']='Augmented'
+    worksheetCORR[colCORRbasisX+'1']='Basis Set X'
+    
+    worksheetCORR[colCORRbasisY+'1']='Basis Set Y'
+    worksheetCORR[colCORRcharge+'1']='Charge'
+    worksheetCORR[colCORR_Ecorr+'1']='Ecorr xy'
+    
+    worksheetCORR[colCORR_A+'1']='A'
+    worksheetCORR[colCORR_VDE_CORR+'1']='CORR VDE'
+    worksheetCORR[colMaxBasisSet+'1']='Largest Basis HF(x)'
+    
+    worksheetCORR[colVDEcc_hfcorr+'1']='ccVDE hf+corr'
+    worksheetCORR[colVDEcc_eV+'1']='ccVDE (eV)'
 
-    
 def findCORRvaluesForCorrSheet(molecule, augmented, worksheetName, moleculeTuple):
     ''' example tuple input
     labels.append(basisTuples[x][0])
