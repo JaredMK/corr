@@ -1,10 +1,10 @@
-#import pandas as pd
 import os
-import xlsxwriter
 import re
 import matplotlib.pyplot as plt
 import openpyxl
 workbook=openpyxl.Workbook()    #creates openpyxl workbook
+
+
 
 '''columns for log file data worksheets'''
 colMolecule = 'A'
@@ -111,6 +111,12 @@ basisSet/sets = Ecorr
 runOnce=False
 timesRun=0
 
+worksheetNeutral = workbook.active
+worksheetNeutral.title=neutralName
+worksheetCharged = workbook.create_sheet(title=chargedName)
+worksheetVDE = workbook.create_sheet(title=vdeName)   #create VDE worksheet #3
+worksheetCORR = workbook.create_sheet(title=corrName)   #create CORR worksheet #4
+
 def run():  
     """function calls dataExtract """
     dataExtract(path)
@@ -118,11 +124,12 @@ def run():
 def rowsForSymAndMol(molecule, symmetry, basis, worksheetName):
    #returns the starting and ending rows in the excel file based off of the molecule and symmetry
     ##print(worksheetName)
-    if worksheetName==neutralName:
-        worksheetNumber=sheetNeutral
-    if worksheetName==chargedName:
-        worksheetNumber=sheetCharged
-    excelFile=pd.read_excel(path + excelFilePathName, sheetname=worksheetNumber)
+    #if worksheetName==neutralName:
+    #    worksheetNumber=sheetNeutral
+    #if worksheetName==chargedName:
+    #    worksheetNumber=sheetCharged
+    #excelFile=pd.read_excel(path + excelFilePathName, sheetname=worksheetNumber)
+    
     
     molStartRow=0   #first row with molecule and symmetry
     molEndRow=0     #last row with molecule and symmetry
@@ -132,13 +139,18 @@ def rowsForSymAndMol(molecule, symmetry, basis, worksheetName):
     while endFound==False:
         
         try:
-            str(excelFile.ix[row,0])
+            #str(excelFile.ix[row,0])
+            str(worksheetName['A' + str(row)].value)
         except:
             molEndRow=row-1
             endFound=True
             break
         
-        if str(excelFile.ix[row,colMolecule]) == molecule and str(excelFile.ix[row,colSym]) == symmetry and str(excelFile.ix[row, colBasis][0:2])==basis[0:2]:
+        #if str(excelFile.ix[row,colMolecule]) == molecule and str(excelFile.ix[row,colSym]) \
+        #== symmetry and str(excelFile.ix[row, colBasis][0:2])==basis[0:2]:
+        if str(worksheetName[colMolecule + str(row)].value)==molecule and \
+        str(worksheetName[colSym + str(row)].value)==symmetry and \
+        str(worksheetName[colBasis + str(row)].value)[0:2]==basis[0:2]:
             if startFound==False:
                 molStartRow=row
                 startFound=True
@@ -146,6 +158,8 @@ def rowsForSymAndMol(molecule, symmetry, basis, worksheetName):
             molEndRow=row-1
             endFound=True
         row+=1
+        
+        #print(molStartRow,molEndRow)
     
     ##print('molecule is ' + molecule)
     ##print('    mol start row is ' + str(molStartRow))
@@ -156,7 +170,7 @@ def rowsForSymAndMol(molecule, symmetry, basis, worksheetName):
 def graph_OneLine(values, l, labels, molecule, worksheetName, augmented, yLabel, graphFolder):
     #graph_HF_CORR
     #line graphs HF values and corr values
-    #creates all graphs with just one line
+    #s all graphs with just one line
     
         if worksheetName==chargedName:
             chargeFolder=chargedFolder
@@ -286,21 +300,25 @@ def graphBothLinesVDE(valuesCation, valuesNeutral, l, labels, molecule, augmente
 def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
     
     #gets a list containing tuples of each of a molecules basis set, HF values and CORR
-    if worksheetName=="NEUTRAL":
-        worksheetNumber=0
-    if worksheetName=="CHARGED":
-        worksheetNumber=1
-    excelFile=pd.read_excel(path+'/logFiles.xlsx', sheetname=worksheetNumber)
-
+    #if worksheetName=="NEUTRAL":
+    #    worksheetNumber=0
+    #if worksheetName=="CHARGED":
+    #    worksheetNumber=1
+    #excelFile=pd.read_excel(path+'/logFiles.xlsx', sheetname=worksheetNumber)
+    
+    #worksheetName is either worksheetCharged or worksheetNeutral
+    
     basisHFCORR=[]
     row=startRow
     while row<=endRow:
-        hf = float(excelFile.ix[row,colHF])
-        corr=float(excelFile.ix[row, colCORR])
-        basis = str(excelFile.ix[row,colBasis])
-        ccsdt=float(excelFile.ix[row, colCCSDT])
-        tupBasis=(basis, hf, corr, ccsdt)
+        hf=float(worksheetName[colHF + str(row)].value)
+        corr=float(worksheetName[colCORR+str(row)].value)
+        basis=str(worksheetName[colBasis+str(row)].value)
+        ccsdt=float(worksheetName[colCCSDT+str(row)].value)
+        tupBasis=(basis,hf,corr,ccsdt)
         basisHFCORR.append(tupBasis)
+        print('tup basis ')
+        print(tupBasis)
         row+=1
         #basisHFCORR has tuples with basis, hf, CORR, ccsdt
     ##print('Molecule is ' + molecule)
@@ -316,6 +334,7 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
     x=0
     ##print('len of basisHFDif')
     ##print(len(basisHFDif))
+    print(basisHFCORR)
     while x < len(basisHFCORR):
         
         ##print('really long thing')
@@ -396,25 +415,29 @@ Basis Tuples LIST
     
     findCORRvaluesForCorrSheet(molecule, augmented, worksheetName, basisTuples)
     
-def prepareVDEgraph(startRow, endRow, molecule, sheetNumber, augmented):
+def prepareVDEgraph(startRow, endRow, molecule, augmented):
     '''gets a list containing tuples of a basis set, VDEhf, VDEccsdt, VDEcorr'''    
-    excelFile=pd.read_excel(path+excelFilePathName, sheetname=sheetNumber)
+    #excelFile=pd.read_excel(path+excelFilePathName, sheetname=sheetNumber)
+    
+    #use worksheetVDE automatically
     
     tupVDEarray=[]
     '''contains a list of tuples (basis set, VDEhf, VDEccsdt, VDEcorr, cat, HF neutral, CORR cat, Corr neutral)'''
     row=startRow
     while row<=endRow:
-        basis= str(excelFile.ix[row, colVDEBasis])
-        VDE_HF=float(excelFile.ix[row, colVDE_HF_eV])
-        VDE_CCSDT=float(excelFile.ix[row, colVDE_CCSDT_eV])
-        VDE_CORR=float(excelFile.ix[row,colVDE_CORR_eV])
         
-        HF_cat=float(excelFile.ix[row, colVDE_HFcharged])
-        HF_neutral=float(excelFile.ix[row, colVDE_HFneutral])
+        basis=str(worksheetVDE[colVDEBasis+str(row)].value)
+        VDE_HF=float(worksheetVDE[colVDE_HF_eV+str(row)].value)
+        VDE_CCSDT=float(worksheetVDE[colVDE_CCSDT_eV+str(row)].value)
+        VDE_CORR=float(worksheetVDE[colVDE_CORR_eV+str(row)].value)
         
-        CORR_cat=float(excelFile.ix[row, colVDE_CORRcharged])
-        CORR_neutral=float(excelFile.ix[row, colVDE_CORRneutral])
+        HF_cat=float(worksheetVDE[colVDE_HFcharged+str(row)].value)
+        HF_neutral=float(worksheetVDE[colVDE_HFneutral+str(row)].value)
         
+        CORR_cat=float(worksheetVDE[colVDE_CORRcharged+str(row)].value)
+        CORR_neutral=float(worksheetVDE[colVDE_CORRneutral+str(row)].value)
+        
+
         tup=(basis, VDE_HF, VDE_CCSDT, VDE_CORR, HF_cat, HF_neutral, CORR_cat, CORR_neutral)
         tupVDEarray.append(tup)
         row+=1
@@ -481,12 +504,12 @@ def prepareVDEgraph(startRow, endRow, molecule, sheetNumber, augmented):
     graphFolderVDEcombined='/combinedVDE_CCSD(T)_HF_CORR/'
     
     
-    '''COMMENTING OUT GRAPHS
+
     graphVDE(VDE_HF_values, l, labels, molecule, augmented, yLabelHF, graphFolderHF)
     graphVDE(VDE_CCSDT_values, l, labels, molecule, augmented, yLabelCCSDT, graphFolderCCSDT)
     graphVDE(VDE_CORR_values, l, labels, molecule, augmented, yLabelCORR, graphFolderCORR)
     
-    graph_VDEcombined_CCSDT_CORR_HF(VDE_HF_values, VDE_CCSDT_values, VDE_CORR_values, l, labels, molecule, sheetNumber, augmented,\
+    graph_VDEcombined_CCSDT_CORR_HF(VDE_HF_values, VDE_CCSDT_values, VDE_CORR_values, l, labels, molecule, worksheetVDE, augmented,\
     yLabelVDEcombined, graphFolderVDEcombined)
     
     
@@ -498,7 +521,7 @@ def prepareVDEgraph(startRow, endRow, molecule, sheetNumber, augmented):
     
     graphBothLinesVDE(HF_cat_values, HF_neutral_values, l, labels, molecule, augmented, yLabelBothHF, graphFolderBothLinesHF)
     graphBothLinesVDE(CORR_cat_values, CORR_neutral_values, l, labels, molecule, augmented, yLabelBothCORR, graphFolderBothLinesCORR)
-    '''
+
 
 def numberOfBasisSets(logarray):
     '''returns a list of the split log arrays by basis set. length is number of basis sets'''
@@ -549,10 +572,8 @@ difference, mp2, mp3, mp4d, mp4dq, mp4sdq, ccsd, orbital, electronicState):
 def dataExtract(path):    
     '''prep excel workbook for NEUTRAL and CHARGED worksheets'''
     
-    #create neutral and charged worksheets
-    worksheetNeutral = workbook.active
-    worksheetNeutral.title=neutralName
-    worksheetCharged = workbook.create_sheet(title=chargedName)
+
+    
     
     #add headings to each column in neutral worksheet
     worksheetNeutral[colMolecule+'1']='Molecule'
@@ -860,7 +881,7 @@ def dataExtract(path):
         #m[0] gives molecule
         #m[1] gives symmetry
         #m[2] gives basis 
-        startEnd=rowsForSymAndMol(m[0], m[1], m[2], 'NEUTRAL')
+        startEnd=rowsForSymAndMol(m[0], m[1], m[2], worksheetNeutral)
         startRow=startEnd[0]
         endRow=startEnd[1]
         if m[2][0:2]=='Au':             #augmented is a boolean. true if augmented. false if not. 
@@ -871,8 +892,8 @@ def dataExtract(path):
         #if endRow-startRow>=4:
          #   #print('MORE THAN FOUR ')
           #  #print(m[0], m[1], m[2], 'NEUTRAL')
-        prepareGraph(startRow, endRow, m[0], 'NEUTRAL', augmented)
-        prepareVDEgraph(startRow, endRow, m[0], 2, augmented)
+        prepareGraph(startRow, endRow, m[0], worksheetNeutral, augmented)
+        prepareVDEgraph(startRow, endRow, m[0], augmented)
     
     ##print(molAndSymCharged)
     for m in molAndSymCharged:
@@ -880,7 +901,7 @@ def dataExtract(path):
         #m[0] gives molecule
         #m[1] gives symmetry
         #m[2] gives basis. [0:2] is either cc or au
-        startEnd=rowsForSymAndMol(m[0], m[1], m[2], 'CHARGED')
+        startEnd=rowsForSymAndMol(m[0], m[1], m[2], worksheetCharged)
         startRow=startEnd[0]
         endRow=startEnd[1]
         if m[2][0:2]=='Au':
@@ -891,7 +912,7 @@ def dataExtract(path):
         #if endRow-startRow>=4:
          #   #print('MORE THAN FOUR ')
           #  #print(m[0], m[1], m[2], 'CHARGED')
-        prepareGraph(startRow, endRow, m[0], 'CHARGED', augmented)
+        prepareGraph(startRow, endRow, m[0], worksheetCharged, augmented)
         
             
         #df = DataFrame({'Molecule':arrMolecule})
@@ -904,7 +925,7 @@ def dataExtract(path):
 def VDEexcel(chargedWorksheet, neutralWorksheet):
     '''function creates an excel sheet for VDE difference between charged and neutral'''
     
-    worksheetVDE = workbook.create_sheet(title=vdeName)   #create VDE worksheet #3
+
     
     worksheetVDE[colVDEMolecule+'1']='Molecule'
     worksheetVDE[colVDESymmetry+'1']='Symmetry'
@@ -1028,7 +1049,7 @@ def VDEexcel(chargedWorksheet, neutralWorksheet):
         row+=1
         
 def CreateCORRexcel():
-    worksheetCORR = workbook.create_sheet(title=corrName)   #create CORR worksheet #4
+
     
     worksheetCORR[colCORRmolecule+'1']='Molecule'
     worksheetCORR[colCORRaugmented+'1']='Augmented'
@@ -1046,6 +1067,7 @@ def CreateCORRexcel():
     worksheetCORR[colVDEcc_eV+'1']='ccVDE (eV)'
 
 def findCORRvaluesForCorrSheet(molecule, augmented, worksheetName, moleculeTuple):
+    print(molecule, augmented, worksheetName, moleculeTuple)
     ''' example tuple input
     labels.append(basisTuples[x][0])
             hfValues.append(basisTuples[x][1])
@@ -1077,7 +1099,7 @@ Basis Tuples LIST
     while basisXcounter<len(moleculeTuple)-1:
         while basisYcounter<len(moleculeTuple):
             if basisYcounter>basisXcounter and moleculeTuple[basisYcounter]!=None and moleculeTuple[basisXcounter]!=None:
-                
+                print('you are now here')
                 ''' if moleculeTuple[0][0][0]=='C':
                     augmented=False
                 elif moleculeTuple[0][0][0]=='A':
