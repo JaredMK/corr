@@ -54,7 +54,6 @@ colMaxBasisSet='I'
 colVDEcc_hfcorr='J'
 colVDEcc_eV = 'K'
 
-
 '''path to this file'''
 path=os.path.dirname(os.path.realpath(__file__))
 pathorigin=path     #location to save workbook
@@ -88,7 +87,6 @@ chargedName="CHARGED"
 vdeName="VDE"
 corrName="CORR"
 
-
 '''color for graphs'''
 primaryColor=(.22, .42, .69)     #blue
 secondaryColor=(1.0, .84, 0)    #gold
@@ -100,17 +98,11 @@ worksheetCORR=None
 correlationMoleculeDict={}
 
 vdeCCSDTev_list=[]
-'''
-list of dictionaries
-(molecule, augmented, (basisSet/sets, corrValue))
-[moleculeaug, molecule, moleculeaug, molecule]
 
-each dictionary
-basisSet/sets = Ecorr
-'''
 runOnce=False
 timesRun=0
 
+#create all of the worksheets
 worksheetNeutral = workbook.active
 worksheetNeutral.title=neutralName
 worksheetCharged = workbook.create_sheet(title=chargedName)
@@ -535,25 +527,21 @@ def numberOfBasisSets(logarray):
     logsToReturn=[]
     x=0
     while x < len(logarray):
-        if logarray[x] =='command:':
+        if logarray[x] =='command:':    #'command' is key word used to differentiate where the basis sets are in the log fils
             commandLocation.append(x)
         x+=1
-    commandLocation.append(len(logarray))
-    ##print(commandLocation)
-    x=0
+    commandLocation.append(len(logarray))   #saves the location of 'command'
+
+    x=0                             #splits the log based on where the key word is and appends to logsToReturn array
     while x< len(commandLocation)-1:
         b=logarray[commandLocation[x]:commandLocation[x+1]]
         logsToReturn.append(b)
         x+=1
-        ##print(b)
-        ##print(len(b))
-    ##print(logsToReturn)
-    ##print(len(logsToReturn))
     return logsToReturn
 
 def writeDataToExcel(worksheet, row, molecule, charge, multiplicity, basis, symmetry, hf, ccsdt,\
 difference, mp2, mp3, mp4d, mp4dq, mp4sdq, ccsd, orbital, electronicState):
-    '''function takes in values from dataExtract to add to excel file'''
+    '''function takes in values from dataExtract to add to excel file in one of the logFileData worksheets'''
 
     worksheet[colMolecule+str(row)]=molecule
     worksheet[colCharge+str(row)]=charge
@@ -577,9 +565,6 @@ difference, mp2, mp3, mp4d, mp4dq, mp4sdq, ccsd, orbital, electronicState):
 
 def dataExtract(path):
     '''prep excel workbook for NEUTRAL and CHARGED worksheets'''
-
-
-
 
     #add headings to each column in neutral worksheet
     worksheetNeutral[colMolecule+'1']='Molecule'
@@ -617,40 +602,29 @@ def dataExtract(path):
     worksheetCharged[colOrbital+'1']='Orbital'
     worksheetCharged[colElectronicState+'1']='Electronic State'
 
-    '''function extracts data from log files and sends to writeDataToExcel'''
+    #function extracts data from log files and sends to writeDataToExcel
 
-    logFiles=[]
+    logFiles=[]     #runs through given folder containing log files and puts every file into logFiles array
+                    #contains all of the log files to oopen
 
     for path, subdirs, files in os.walk(path+logFilesFolder):
         for name in files:
             if os.path.join(path, name)[len(os.path.join(path, name))-4:len(os.path.join(path, name))]=='.log':
                 logFiles.append(os.path.join(path, name))
 
-    #logFiles=['/Users/Jared/Dropbox/Auburn/Research/Second_Research/Log_Files/CH4_Dz.txt']
-    #,'CH4_Qz.txt','CH4_Tz.txt'
-    #list of all the log files to open. might need to change to a loop later
-
     molAndSymNeutral=[]   #holds list of tuples of all the molecules/symmetry combos. To use in function returnRowsforSymsandMols
     molAndSymCharged=[]
 
-    rowNeutral = 2
+    rowNeutral = 2  #start on second row. First row contains hedings.
     rowCharged = 2
-    ##print(logFiles)
+
     '''begin searching and saving data'''
-    for currentFile in logFiles:
-        log = open(currentFile, 'r').read()
+    for currentFile in logFiles:    #loop through log files
+        log = open(currentFile, 'r').read()     #open and read log file
 
-        splitLog = re.split(r'[\\\s]\s*', log)  #splits string with \ (\\), empty space (\s) and = and ,
-        ###print(repr(splitlog))
-        ###print(splitlog)
-        ###print(len(splitlog))
-        #open up the log file, read it, and split it- log
-        ###print('length of splitlog is' + str(len(splitlog)))
-        #reset all values
+        splitLog = re.split(r'[\\\s]\s*', log)  #splits string with \ (\\), empty space (\s) and = and , This makes it easier to extract important info
 
-        for splitlog in numberOfBasisSets(splitLog): #NUMBEROFSPLITS will return where in log file it needs to be split for basis sets
-            #textFile(log)   #text file will return each log split by basis set because some aren't
-            ##print(splitlog)
+        for splitlog in numberOfBasisSets(splitLog): #numberOfBasisSets(splitLog) will return where in log file it needs to be split for seperate basis sets
             molecule = None
             charge = None
             multiplicity = None
@@ -672,7 +646,7 @@ def dataExtract(path):
             alphaOrbitalFound=False     #need for multiplicity not 1 for electronic state
 
             x=0
-            while x<len(splitlog):
+            while x<len(splitlog):  #looping through log text for specific basis set to find values listed above
 
                                                     #find name of molecule
                 if splitlog[x] == 'Stoichiometry':
@@ -686,35 +660,27 @@ def dataExtract(path):
                                                 #find charge and multiplicity
                 if splitlog[x] == 'Multiplicity':
                     charge = float(splitlog[x-1])
-                    ##print('charge is ' + str(charge))
                     multiplicity = int(splitlog[x+2])
-                    ##print('multiplicity is ' + str(multiplicity))
+
                                                 #find basis and symmetry
                 if splitlog[x] == 'Standard' and splitlog[x+1]=='basis:':
                     basis = splitlog[x+2]
-                    ##print('basis is ' + basis)
 
                 if splitlog[x]=='Full':
                     symmetry=splitlog[x+3]
-                    ##print('symmetry is ' + symmetry)
                                                     #find block with data
-
                 if splitlog[x]=='Population' and splitlog[x+1]=='analysis':
                     #print(multiplicity)
                     populationAnalysisFound=True
-                    ##print('population analysis found')
 
                 if multiplicity==1 and populationAnalysisFound==True and splitlog[x]=='Virtual' and orbital==None:
                     orbital = splitlog[x-1]
-                    ##print('orbital found for multiplicity is 1')
 
                 if splitlog[x]=='Alpha' and splitlog[x+1]=='Orbitals:' and populationAnalysisFound==True and multiplicity!=None and multiplicity!=1:
                     alphaOrbitalFound=True
-                    ##print('alpha orbital found')
 
                 if alphaOrbitalFound==True and splitlog[x]=='Virtual' and orbital==None:
                     orbital=splitlog[x-1]
-                    ##print('orbital found for multiplicity not 1')
 
                 if populationAnalysisFound==True and electronicState==None:
                     if splitlog[x]=='The' or splitlog[x]=='Unable':
@@ -723,18 +689,13 @@ def dataExtract(path):
                             y+=1
                         electronicState=''.join(splitlog[x:x+y])
 
-
-
                 if splitlog[x]=='SP':
                     valuesBlockFound=True
 
                     y=0
                     while splitlog[x+y]!='@':
                         y+=1
-                    valuesBlock=''.join(splitlog[x:x+y])
-                    ##print('start values block')
-                    ##print(valuesBlock)
-                    ##print('end values block')
+                    valuesBlock=''.join(splitlog[x:x+y])    #block of text containing values needs to be isolated
                     l=0
                     while l < len(valuesBlock):
                                                         #find HF
@@ -749,7 +710,6 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             hf=valuesBlock[start:end-1]
-                            ##print('HF is ' + hf)
                                                             #find CCSD(T)
                                                             #calculate difference
                         if valuesBlock[l:l+8]=='CCSD(T)=':
@@ -763,7 +723,6 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             ccsdt=valuesBlock[start:end-1]
-                            ##print('CCSD(T) is ' + ccsdt)
 
                             difference = float(ccsdt) - float(hf)
                                                             #find MP2
@@ -778,7 +737,6 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             mp2=valuesBlock[start:end-1]
-                            ##print('MP2 is ' + mp2)
                                                         #find MP3
                         if valuesBlock[l:l+4]=='MP3=':
                             start=l+4
@@ -791,7 +749,6 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             mp3=valuesBlock[start:end-1]
-                            ##print('MP3 is ' + mp3)
                                                         #find MP4D
                         if valuesBlock[l:l+5]=='MP4D=':
                             start=l+5
@@ -804,7 +761,6 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             mp4d=valuesBlock[start:end-1]
-                            ##print('MP4D is ' + mp4d)
                                                         #find MP4DQ
                         if valuesBlock[l:l+6]=='MP4DQ=':
                             start=l+6
@@ -817,7 +773,6 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             mp4dq=valuesBlock[start:end-1]
-                            ##print('MP4DQ is ' + mp4dq)
                                                             #find MP4SDQ
                         if valuesBlock[l:l+7]=='MP4SDQ=':
                             start=l+7
@@ -830,7 +785,6 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             mp4sdq=valuesBlock[start:end-1]
-                            ##print('MP4SDQ is ' + mp4sdq)
                                                             #find CCSD
                         if valuesBlock[l:l+5]=='CCSD=':
                             start=l+5
@@ -849,12 +803,7 @@ def dataExtract(path):
                 x+=1
 
             if valuesBlockFound==True:
-                ##print('molecule is ' + molecule)
-                ##print('HF is ' + hf)
-
-
                 '''figure out which worksheet to use'''
-                ##print('Charge is ' + str(charge))
                 molsym=(str(molecule), str(symmetry), str(basis[0:2]))
 
                 if charge==0:
@@ -862,7 +811,6 @@ def dataExtract(path):
                     row = rowNeutral
                     if molsym not in molAndSymNeutral:
                         molAndSymNeutral.append(molsym)
-                    #molAndSym=molAndSymNeutral
                 else:
                     worksheet=worksheetCharged
                     row = rowCharged
@@ -871,17 +819,15 @@ def dataExtract(path):
 
                 #data stored in variables is input to writesDataToExcel
                 writeDataToExcel(worksheet, row, molecule, charge, multiplicity, basis, symmetry, hf, ccsdt,\
-        difference, mp2, mp3, mp4d, mp4dq, mp4sdq, ccsd, orbital, electronicState)
-
+        difference, mp2, mp3, mp4d, mp4dq, mp4sdq, ccsd, orbital, electronicState)  #write this data into excel log files worksheet, neutral or charged
                 if charge==0:
                     rowNeutral+=1
                 else:
                     rowCharged+=1
 
-    VDEexcel(worksheetCharged, worksheetNeutral)
-    CreateCORRexcel()
+    VDEexcel(worksheetCharged, worksheetNeutral)    #adds headings to vde excel worksheet
+    CreateCORRexcel()   #create Corr excel sheet
 
-    ##print(molAndSymNeutral)
     for m in molAndSymNeutral:
         print('m is ')
         print(m)
@@ -938,9 +884,6 @@ def dataExtract(path):
 
 def VDEexcel(chargedWorksheet, neutralWorksheet):
     '''function creates an excel sheet for VDE difference between charged and neutral'''
-
-
-
     worksheetVDE[colVDEMolecule+'1']='Molecule'
     worksheetVDE[colVDESymmetry+'1']='Symmetry'
     worksheetVDE[colVDEBasis+'1']='Basis'
@@ -1034,7 +977,6 @@ def VDEexcel(chargedWorksheet, neutralWorksheet):
         elif chargedBasis[0]=='C':
             augmented=False
 
-        #vdeCCSDTev_list[chargedMolecule, chargedBasis]=VDE_CCSDT*Ha_eV_conversion
         x=0
         added=False
         while x<len(vdeCCSDTev_list):
@@ -1063,7 +1005,7 @@ def VDEexcel(chargedWorksheet, neutralWorksheet):
         row+=1
 
 def CreateCORRexcel():
-
+    '''adds headings to each column in the CORR worksheet'''
 
     worksheetCORR[colCORRmolecule+'1']='Molecule'
     worksheetCORR[colCORRaugmented+'1']='Augmented'
