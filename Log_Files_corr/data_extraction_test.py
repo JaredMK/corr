@@ -291,20 +291,8 @@ def graphBothLinesVDE(valuesCation, valuesNeutral, l, labels, molecule, augmente
 
 def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
 
-    #gets a list containing tuples of each of a molecules basis set, HF values and CORR
-    #if worksheetName=="NEUTRAL":
-    #    worksheetNumber=0
-    #if worksheetName=="CHARGED":
-    #    worksheetNumber=1
-    #excelFile=pd.read_excel(path+'/logFiles.xlsx', sheetname=worksheetNumber)
-
-    #worksheetName is either worksheetCharged or worksheetNeutral
-
     basisHFCORR=[]
     row=startRow
-
-    print('row e' + str(row))
-    print('end row' + str(endRow))
 
     while row<=endRow:
         hf=float(worksheetName[colHF + str(row)].value)
@@ -313,14 +301,9 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
         ccsdt=float(worksheetName[colCCSDT+str(row)].value)
         tupBasis=(basis,hf,corr,ccsdt)
         basisHFCORR.append(tupBasis)
-        print('tup basis yadada')
-        print(tupBasis)
         row+=1
         #basisHFCORR has tuples with basis, hf, CORR, ccsdt
-    ##print('Molecule is ' + molecule)
-    ##print('Basis, hf, corr ) ' + str(basisHFCORR))
-
-    #basisHFCORR is a list filled with tuples for just one molecule
+        #basisHFCORR is a list filled with tuples for just one molecule
 
     pvdz=None
     pvtz=None
@@ -328,17 +311,9 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
     pv5z=None
 
     x=0
-    ##print('len of basisHFDif')
-    ##print(len(basisHFDif))
-    print(basisHFCORR)
     while x < len(basisHFCORR):
-
-        ##print('really long thing')
-        ##print(basisHFDif[x][0][len(basisHFDif[x][0])-4:len(basisHFDif[x][0])])
-
         #checks if last four characters of basis (basisHFCORR[x][0]) matches with one in the basisSets
         if str(basisHFCORR[x][0][len(basisHFCORR[x][0])-4:len(basisHFCORR[x][0])])=='pVDZ':
-            ##print('It')
             pvdz=basisHFCORR[x]
         if str(basisHFCORR[x][0][len(basisHFCORR[x][0])-4:len(basisHFCORR[x][0])])=='pVTZ':
             pvtz=basisHFCORR[x]
@@ -347,16 +322,6 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
         if str(basisHFCORR[x][0][len(basisHFCORR[x][0])-4:len(basisHFCORR[x][0])])=='pV5Z':
             pv5z=basisHFCORR[x]
         x+=1
-
-    ##print('pvdz')
-    ##print(pvtz)
-    ##print('pvtz')
-    ##print(pvtz)
-    ##print('pvqz')
-    ##print(pvqz)
-    ##print('pv5z')
-    ##print(pv5z)
-
     labels=[]       #graph labels
     hfValues=[]     #y values
     corrValues=[]
@@ -366,10 +331,7 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
     x=0
     xAxis=0
     while x< len(basisTuples):
-        ##print('basis Tuples [x]')
-        ##print(basisTuples[x])
         if basisTuples[x] is not None:
-            #print('hello basis tuples')
             labels.append(basisTuples[x][0])
             hfValues.append(basisTuples[x][1])
             corrValues.append(basisTuples[x][2])
@@ -377,10 +339,6 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
             l.append(xAxis)
             xAxis+=5
         x+=1
-    ##print(labels)
-    ##print(hfValues)
-    ##print(l)
-
 
     ylabelHF="HF Value"
     ylabelCORR="CCSD(T)-HF"
@@ -391,18 +349,13 @@ def prepareGraph(startRow, endRow, molecule, worksheetName, augmented):
     graphFolderHFandCCSDT='/HF_and_CCSD(T)/'
     graphFolderHFandCORR='/HF_and_CORR/'
 
-    print(molecule)
-    #print('Basis Tuples LIST')
-    #print(basisTuples)
-
-
-    '''COMMENTING OUT GRAPHS
+    #'''COMMENTING OUT GRAPHS
     graph_OneLine(hfValues, l, labels, molecule, worksheetName, augmented, ylabelHF, graphFolderHF)
     graph_OneLine(corrValues, l, labels, molecule, worksheetName, augmented, ylabelCORR, graphFolderCORR)
 
     graph_TwoLines(hfValues, ccsdtValues, l, labels, molecule, worksheetName, augmented, ylabelHFandCCSDT, graphFolderHFandCCSDT, ' HF', ' CCSD(T)')
     graph_TwoLines(hfValues, corrValues, l, labels, molecule, worksheetName, augmented, ylabelHFandCORR, graphFolderHFandCORR, ' HF', ' CORR')
-    '''
+    #'''
 
     """Example Basis Tuples List
     Basis Tuples LIST
@@ -829,28 +782,17 @@ def dataExtract(path):
     CreateCORRexcel()   #create Corr excel sheet
 
     for m in molAndSymNeutral:
-        print('m is ')
-        print(m)
-        #molAndSym contains tuples of (molecule, symmetry)
-        #m[0] gives molecule
-        #m[1] gives symmetry
-        #m[2] gives basis
+            #molAndSym contains tuples of (molecule, symmetry)
+            #m[0] gives molecule
+            #m[1] gives symmetry
+            #m[2] gives basis
         startEnd=rowsForSymAndMol(m[0], m[1], m[2], worksheetNeutral)
-        print('rowsforsymandmol input is ')
-        print(m[0], m[1], m[2], worksheetNeutral)
-        print('worksheet neutral E5')
-        print(worksheetNeutral['E5'].value)
         startRow=startEnd[0]
         endRow=startEnd[1]
-        print('neutral end row ' + str(endRow))
         if m[2][0:2]=='Au':             #augmented is a boolean. true if augmented. false if not.
             augmented=True
         elif m[2][0:2]=='CC':
             augmented=False
-        ##print(m[0], m[2][0:2], startRow+2, endRow+2)
-        #if endRow-startRow>=4:
-         #   #print('MORE THAN FOUR ')
-          #  #print(m[0], m[1], m[2], 'NEUTRAL')
         prepareGraph(startRow, endRow, m[0], worksheetNeutral, augmented)
         prepareVDEgraph(startRow, endRow, m[0], augmented)
 
