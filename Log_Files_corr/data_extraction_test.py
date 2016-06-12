@@ -159,14 +159,14 @@ def rowsForSymAndMol(molecule, symmetry, basis, worksheetName):
     return(molStartRow,molEndRow)
 
 
-def graph_OneLine(values, l, labels, molecule, worksheetName, augmented, yLabel, graphFolder):
+def graph_OneLine(values, l, labels, molecule, worksheet, augmented, yLabel, graphFolder):
     #graph_HF_CORR
     #line graphs HF values and corr values
     #s all graphs with just one line
 
-        if worksheetName==chargedName:
+        if worksheet==worksheetCharged:
             chargeFolder=chargedFolder
-        if worksheetName==neutralName:
+        if worksheet==worksheetNeutral:
             chargeFolder=neutralFolder
         if augmented==True:
             augmentedFolder=augFolder
@@ -188,15 +188,14 @@ def graph_OneLine(values, l, labels, molecule, worksheetName, augmented, yLabel,
         if not os.path.exists(path + '/ALL GRAPHS' + graphFolder +chargeFolder+augmentedFolder):
             os.makedirs(path + '/ALL GRAPHS' + graphFolder +chargeFolder+augmentedFolder)
         plt.savefig(path + '/ALL GRAPHS' + graphFolder +chargeFolder+augmentedFolder+ molecule + '.eps')
-        #plt.show()
         plt.close()
 
-def graph_TwoLines(aValues, bValues, l, labels, molecule, worksheetName, augmented, yLabel, graphFolder, aLabel, bLabel):
+def graph_TwoLines(aValues, bValues, l, labels, molecule, worksheet, augmented, yLabel, graphFolder, aLabel, bLabel):
     #graph_HFandCCSDT
     '''graphs CCSDT and HF on same axis'''
-    if worksheetName==chargedName:
+    if worksheet==worksheetCharged:
         chargeFolder=chargedFolder
-    if worksheetName==neutralName:
+    if worksheet==worksheetNeutral:
         chargeFolder=neutralFolder
     if augmented==True:
         augmentedFolder=augFolder
@@ -403,7 +402,6 @@ def prepareVDEgraph(startRow, endRow, molecule, augmented):
 
     while x<len(tupVDEarray):
         if str(tupVDEarray[x][0][len(tupVDEarray[x][0])-4:len(tupVDEarray[x][0])])=='pVDZ':
-            ##print('preparing VDE graph')
             pvdz=tupVDEarray[x]
         if str(tupVDEarray[x][0][len(tupVDEarray[x][0])-4:len(tupVDEarray[x][0])])=='pVTZ':
             pvtz=tupVDEarray[x]
