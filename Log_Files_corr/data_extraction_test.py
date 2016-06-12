@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 import openpyxl
 workbook=openpyxl.Workbook()    #creates openpyxl workbook
 
-
-
 '''columns for log file data worksheets'''
 colMolecule = 'A'
 colSym = 'B'
@@ -111,7 +109,76 @@ worksheetCORR = workbook.create_sheet(title=corrName)   #create CORR worksheet #
 
 def run():
     """function calls dataExtract """
+    addHeadingsToWorksheets()
     dataExtract(path)
+
+def addHeadingsToWorksheets():
+    '''function adds the headings to each column in the neutral, charged, VDE, and CORR worksheets'''
+    #add headings to each column in neutral worksheet
+    worksheetNeutral[colMolecule+'1']='Molecule'
+    worksheetNeutral[colCharge+'1']='Charge'
+    worksheetNeutral[colBasis+'1']='Basis'
+    worksheetNeutral[colCCSDT+'1']='CCSD(T)'
+    worksheetNeutral[colHF+'1']='HF'
+    worksheetNeutral[colCORR+'1']='CCSD(T)-HF'
+    worksheetNeutral[colMP2+'1']='MP2'
+    worksheetNeutral[colMP3+'1']='MP3'
+    worksheetNeutral[colMP4D+'1']='MP4D'
+    worksheetNeutral[colMP4DQ+'1']='MP4DQ'
+    worksheetNeutral[colMP4SDQ+'1']='MP4SDQ'
+    worksheetNeutral[colSym+'1']='Symmetry'
+    worksheetNeutral[colMultiplicity+'1']='Multiplicity'
+    worksheetNeutral[colCCSD+'1']='CCSD'
+    worksheetNeutral[colOrbital+'1']='Orbital'
+    worksheetNeutral[colElectronicState+'1']='Electronic State'
+
+    #add headings to each column in charged worksheet
+    worksheetCharged[colMolecule+'1']='Molecule'
+    worksheetCharged[colCharge+'1']='Charge'
+    worksheetCharged[colBasis+'1']='Basis'
+    worksheetCharged[colCCSDT+'1']='CCSD(T)'
+    worksheetCharged[colHF+'1']='HF'
+    worksheetCharged[colCORR+'1']='CCSD(T)-HF'
+    worksheetCharged[colMP2+'1']='MP2'
+    worksheetCharged[colMP3+'1']='MP3'
+    worksheetCharged[colMP4D+'1']='MP4D'
+    worksheetCharged[colMP4DQ+'1']='MP4DQ'
+    worksheetCharged[colMP4SDQ+'1']='MP4SDQ'
+    worksheetCharged[colSym+'1']='Symmetry'
+    worksheetCharged[colMultiplicity+'1']='Multiplicity'
+    worksheetCharged[colCCSD+'1']='CCSD'
+    worksheetCharged[colOrbital+'1']='Orbital'
+    worksheetCharged[colElectronicState+'1']='Electronic State'
+
+    #add headings to each column in VDE worksheet
+    worksheetVDE[colVDEMolecule+'1']='Molecule'
+    worksheetVDE[colVDESymmetry+'1']='Symmetry'
+    worksheetVDE[colVDEBasis+'1']='Basis'
+    worksheetVDE[colVDE_HFcharged+'1']='HF (N-1)'
+    worksheetVDE[colVDE_HFneutral+'1']='HF (N)'
+    worksheetVDE[colVDE_HF_Ha+'1']='VDE(HF)(Ha)=HF(N-1)-HF(N)'
+    worksheetVDE[colVDE_HF_eV+'1']='VDE(HF) (eV)'
+    worksheetVDE[colVDE_CCSDTcharged+'1']='CCSD(T) (N-1)'
+    worksheetVDE[colVDE_CCSDTneutral+'1']='CCSD(T) (N)'
+    worksheetVDE[colVDE_CCSDT_Ha+'1']='VDE(CCSDT)(Ha)=CCSD(T)(N-1)-CCSD(T)(N)'
+    worksheetVDE[colVDE_CCSDT_eV+'1']='VDE(CCSDT)(eV)=CCSD(T)(N-1)-CCSD(T)(N)'
+    worksheetVDE[colVDE_CORRcharged+'1']='CORR (N-1)'
+    worksheetVDE[colVDE_CORRneutral+'1']='CORR (N)'
+    worksheetVDE[colVDE_CORR_Ha+'1']='VDE(CORR)(Ha)=CORR(N-1) - CORR(N)'
+    worksheetVDE[colVDE_CORR_eV+'1']='VDE(CORR)(eV)=CORR(N-1) - CORR(N)'
+
+    #add headings to each column in CORR worksheet
+    worksheetCORR[colCORRmolecule+'1']='Molecule'
+    worksheetCORR[colCORRaugmented+'1']='Augmented'
+    worksheetCORR[colCORRbasisX+'1']='Basis Set X'
+    worksheetCORR[colCORRbasisY+'1']='Basis Set Y'
+    worksheetCORR[colCORRcharge+'1']='Charge'
+    worksheetCORR[colCORR_Ecorr+'1']='Ecorr xy'
+    worksheetCORR[colCORR_A+'1']='A'
+    worksheetCORR[colCORR_VDE_CORR+'1']='CORR VDE'
+    worksheetCORR[colMaxBasisSet+'1']='Largest Basis HF(x)'
+    worksheetCORR[colVDEcc_hfcorr+'1']='ccVDE hf+corr'
+    worksheetCORR[colVDEcc_eV+'1']='ccVDE (eV)'
 
 def rowsForSymAndMol(molecule, symmetry, basis, worksheetName):
    #returns the starting and ending rows in the excel file based off of the molecule and symmetry
@@ -515,43 +582,8 @@ difference, mp2, mp3, mp4d, mp4dq, mp4sdq, ccsd, orbital, electronicState):
     worksheet[colElectronicState+str(row)]=electronicState
 
 def dataExtract(path):
-    '''prep excel workbook for NEUTRAL and CHARGED worksheets'''
 
-    #add headings to each column in neutral worksheet
-    worksheetNeutral[colMolecule+'1']='Molecule'
-    worksheetNeutral[colCharge+'1']='Charge'
-    worksheetNeutral[colBasis+'1']='Basis'
-    worksheetNeutral[colCCSDT+'1']='CCSD(T)'
-    worksheetNeutral[colHF+'1']='HF'
-    worksheetNeutral[colCORR+'1']='CCSD(T)-HF'
-    worksheetNeutral[colMP2+'1']='MP2'
-    worksheetNeutral[colMP3+'1']='MP3'
-    worksheetNeutral[colMP4D+'1']='MP4D'
-    worksheetNeutral[colMP4DQ+'1']='MP4DQ'
-    worksheetNeutral[colMP4SDQ+'1']='MP4SDQ'
-    worksheetNeutral[colSym+'1']='Symmetry'
-    worksheetNeutral[colMultiplicity+'1']='Multiplicity'
-    worksheetNeutral[colCCSD+'1']='CCSD'
-    worksheetNeutral[colOrbital+'1']='Orbital'
-    worksheetNeutral[colElectronicState+'1']='Electronic State'
 
-    #add headings to each column in charged worksheet
-    worksheetCharged[colMolecule+'1']='Molecule'
-    worksheetCharged[colCharge+'1']='Charge'
-    worksheetCharged[colBasis+'1']='Basis'
-    worksheetCharged[colCCSDT+'1']='CCSD(T)'
-    worksheetCharged[colHF+'1']='HF'
-    worksheetCharged[colCORR+'1']='CCSD(T)-HF'
-    worksheetCharged[colMP2+'1']='MP2'
-    worksheetCharged[colMP3+'1']='MP3'
-    worksheetCharged[colMP4D+'1']='MP4D'
-    worksheetCharged[colMP4DQ+'1']='MP4DQ'
-    worksheetCharged[colMP4SDQ+'1']='MP4SDQ'
-    worksheetCharged[colSym+'1']='Symmetry'
-    worksheetCharged[colMultiplicity+'1']='Multiplicity'
-    worksheetCharged[colCCSD+'1']='CCSD'
-    worksheetCharged[colOrbital+'1']='Orbital'
-    worksheetCharged[colElectronicState+'1']='Electronic State'
 
     #function extracts data from log files and sends to writeDataToExcel
 
@@ -748,7 +780,6 @@ def dataExtract(path):
                                 except:
                                     numberDone=True
                             ccsd=valuesBlock[start:end-1]
-                            ##print('CCSD is ' + ccsd)
 
                         l+=1
                 x+=1
@@ -776,8 +807,7 @@ def dataExtract(path):
                 else:
                     rowCharged+=1
 
-    VDEexcel(worksheetCharged, worksheetNeutral)    #adds headings to vde excel worksheet
-    CreateCORRexcel()   #create Corr excel sheet
+    VDEexcel()    #adds headings to vde excel worksheet
 
     for m in molAndSymNeutral:
             #molAndSym contains tuples of (molecule, symmetry)
@@ -794,7 +824,6 @@ def dataExtract(path):
         prepareGraph(startRow, endRow, m[0], worksheetNeutral, augmented)
         prepareVDEgraph(startRow, endRow, m[0], augmented)
 
-    ##print(molAndSymCharged)
     for m in molAndSymCharged:
         #molAndSym contains tuples of (molecule, symmetry)
         #m[0] gives molecule
@@ -822,26 +851,10 @@ def dataExtract(path):
 
     workbook.save(pathorigin + excelFilePathName)     #saves file
 
-def VDEexcel(chargedWorksheet, neutralWorksheet):
-    '''function creates an excel sheet for VDE difference between charged and neutral'''
-    worksheetVDE[colVDEMolecule+'1']='Molecule'
-    worksheetVDE[colVDESymmetry+'1']='Symmetry'
-    worksheetVDE[colVDEBasis+'1']='Basis'
-    worksheetVDE[colVDE_HFcharged+'1']='HF (N-1)'
-    worksheetVDE[colVDE_HFneutral+'1']='HF (N)'
-    worksheetVDE[colVDE_HF_Ha+'1']='VDE(HF)(Ha)=HF(N-1)-HF(N)'
-    worksheetVDE[colVDE_HF_eV+'1']='VDE(HF) (eV)'
-    worksheetVDE[colVDE_CCSDTcharged+'1']='CCSD(T) (N-1)'
-    worksheetVDE[colVDE_CCSDTneutral+'1']='CCSD(T) (N)'
-    worksheetVDE[colVDE_CCSDT_Ha+'1']='VDE(CCSDT)(Ha)=CCSD(T)(N-1)-CCSD(T)(N)'
-    worksheetVDE[colVDE_CCSDT_eV+'1']='VDE(CCSDT)(eV)=CCSD(T)(N-1)-CCSD(T)(N)'
-    worksheetVDE[colVDE_CORRcharged+'1']='CORR (N-1)'
-    worksheetVDE[colVDE_CORRneutral+'1']='CORR (N)'
-    worksheetVDE[colVDE_CORR_Ha+'1']='VDE(CORR)(Ha)=CORR(N-1) - CORR(N)'
-    worksheetVDE[colVDE_CORR_eV+'1']='VDE(CORR)(eV)=CORR(N-1) - CORR(N)'
-
+def VDEexcel():
+    '''function gets necessary values from the charged and neutral worksheets. Then calculates VDE and writes it into VDEworksheet.'''
     row=2
-    totalRows=neutralWorksheet.max_row
+    totalRows=worksheetNeutral.max_row
 
     while row<=totalRows:
 
@@ -863,13 +876,13 @@ def VDEexcel(chargedWorksheet, neutralWorksheet):
         VDE_CORR=None
 
         '''find all the necessary values from neutral worksheet'''
-        neutralMolecule=neutralWorksheet[colMolecule + str(row)].value
-        neutralSymmetry=neutralWorksheet[colSym + str(row)].value
-        neutralBasis=neutralWorksheet[colBasis + str(row)].value
+        neutralMolecule=worksheetNeutral[colMolecule + str(row)].value
+        neutralSymmetry=worksheetNeutral[colSym + str(row)].value
+        neutralBasis=worksheetNeutral[colBasis + str(row)].value
 
-        neutralHF=neutralWorksheet[colHF + str(row)].value
-        neutralCCSDT=neutralWorksheet[colCCSDT + str(row)].value
-        neutralCORR=neutralWorksheet[colCORR + str(row)].value
+        neutralHF=worksheetNeutral[colHF + str(row)].value
+        neutralCCSDT=worksheetNeutral[colCCSDT + str(row)].value
+        neutralCORR=worksheetNeutral[colCORR + str(row)].value
 
         '''write neutral values into VDE worksheet'''
         worksheetVDE[colVDEMolecule+str(row)]=neutralMolecule
@@ -887,17 +900,17 @@ def VDEexcel(chargedWorksheet, neutralWorksheet):
         otherRow=2
         while otherRow<=totalRows:
             """'''find what the charged row molecule symmetry and basis is'''"""
-            chargedMolecule=chargedWorksheet[colMolecule + str(otherRow)].value
-            chargedSymmetry=chargedWorksheet[colSym + str(otherRow)].value
-            chargedBasis=chargedWorksheet[colBasis + str(otherRow)].value
+            chargedMolecule=worksheetCharged[colMolecule + str(otherRow)].value
+            chargedSymmetry=worksheetCharged[colSym + str(otherRow)].value
+            chargedBasis=worksheetCharged[colBasis + str(otherRow)].value
 
             '''check if charged values == neutral values to make sure'''
             if chargedMolecule==neutralMolecule and chargedSymmetry==neutralSymmetry \
             and chargedBasis==neutralBasis:
                 ''' if they are the same proceed and find the hf ccsdt and corr values'''
-                chargedHF=chargedWorksheet[colHF + str(otherRow)].value
-                chargedCCSDT=chargedWorksheet[colCCSDT + str(otherRow)].value
-                chargedCORR=chargedWorksheet[colCORR + str(otherRow)].value
+                chargedHF=worksheetCharged[colHF + str(otherRow)].value
+                chargedCCSDT=worksheetCharged[colCCSDT + str(otherRow)].value
+                chargedCORR=worksheetCharged[colCORR + str(otherRow)].value
                 '''write charged values into VDE worksheet'''
 
                 worksheetVDE[colVDE_HFcharged+str(otherRow)]=chargedHF
@@ -943,24 +956,6 @@ def VDEexcel(chargedWorksheet, neutralWorksheet):
         worksheetVDE[colVDE_CORR_eV+str(row)]=VDE_CORR*Ha_eV_conversion
 
         row+=1
-
-def CreateCORRexcel():
-    '''adds headings to each column in the CORR worksheet'''
-
-    worksheetCORR[colCORRmolecule+'1']='Molecule'
-    worksheetCORR[colCORRaugmented+'1']='Augmented'
-    worksheetCORR[colCORRbasisX+'1']='Basis Set X'
-
-    worksheetCORR[colCORRbasisY+'1']='Basis Set Y'
-    worksheetCORR[colCORRcharge+'1']='Charge'
-    worksheetCORR[colCORR_Ecorr+'1']='Ecorr xy'
-
-    worksheetCORR[colCORR_A+'1']='A'
-    worksheetCORR[colCORR_VDE_CORR+'1']='CORR VDE'
-    worksheetCORR[colMaxBasisSet+'1']='Largest Basis HF(x)'
-
-    worksheetCORR[colVDEcc_hfcorr+'1']='ccVDE hf+corr'
-    worksheetCORR[colVDEcc_eV+'1']='ccVDE (eV)'
 
 def findCORRvaluesForCorrSheet(molecule, augmented, worksheetName, moleculeTuple):
     #print(molecule, augmented, worksheetName, moleculeTuple)
